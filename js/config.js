@@ -1,0 +1,1 @@
+export const CONFIG={demoMode:true,currentUser:{name:"Procesos",email:"procesos@urba-park.com"},endpoints:{supplier:"",request:"",quotation:""}};export const KEYS={requests:"sitec_requests",supplier:"sitec_supplier",quotes:"sitec_quotes"};

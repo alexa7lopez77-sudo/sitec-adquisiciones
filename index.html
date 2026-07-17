@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SITEC | Adquisiciones</title>
+<link rel="stylesheet" href="css/main.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+</head>
+<body>
+<div class="app">
+<aside class="sidebar">
+  <div class="brand"><img src="img/sitec-logo.png" alt="SITEC"><span>SITEC</span></div>
+  <button class="company"><span><i class="fa-solid fa-circle dot"></i> Urbapark</span><i class="fa-solid fa-chevron-down"></i></button>
+  <p class="caption">MÓDULOS</p>
+  <section class="menu-group open" id="menuGroup">
+    <button class="menu-title" id="menuToggle"><span><i class="fa-solid fa-cart-shopping"></i> ADQUISICIONES</span><i class="fa-solid fa-chevron-down"></i></button>
+    <div class="children">
+      <div class="purchase-label"><i class="fa-solid fa-bag-shopping"></i> COMPRA</div>
+      <button class="side-link active" data-view="requesterView"><i class="fa-solid fa-user-pen"></i> SOLICITANTE</button>
+      <button class="side-link" data-view="supplierView"><i class="fa-solid fa-building"></i> PROVEEDOR</button>
+    </div>
+  </section>
+</aside>
+
+<main class="main">
+<header class="topbar"><div><small>Adquisiciones / Compra</small><h1 id="pageTitle">Solicitante</h1></div><div class="top-actions"><button class="company pill"><span class="company-brand"><img src="img/urbapark-logo.png" alt="Logo Urbapark"><i class="fa-solid fa-circle dot"></i> Urbapark</span><i class="fa-solid fa-chevron-down"></i></button><div class="avatar neutral">PR</div></div></header>
+<div class="workspace">
+
+<section id="requesterView" class="role active">
+  <nav class="tabs">
+    <button class="tab active" data-target="requestCreate">Solicitar</button>
+    <button class="tab" data-target="requestList">Requerimientos</button>
+    <button class="tab" data-target="requestReview">Revisión</button>
+  </nav>
+
+  <section id="requestCreate" class="panel active"><article class="card">
+    <header class="card-head"><div><h2>Registrar solicitud de compra</h2><p>Seleccione el centro de costo y el trabajo requerido.</p></div><span class="chip">Nuevo requerimiento</span></header>
+    <form id="requestForm" class="grid">
+      <div class="field">
+  <label>Centro de costo</label>
+  <div id="centerPicker" class="search-picker" data-placeholder="Buscar parqueadero..."></div>
+  <input id="centerValue" type="hidden" required>
+</div>
+      
+      <div class="field">
+  <label>Lista de trabajos</label>
+  <div id="workPicker" class="search-picker"
+       data-placeholder="Buscar en la lista de trabajos..."></div>
+  <input id="workValue" type="hidden" required>
+  <small>La búsqueda utiliza únicamente la columna Lista de trabajos.</small>
+</div>
+      <div class="field full"><label>Observaciones</label><textarea id="notes" rows="5" placeholder="Observaciones adicionales"></textarea></div>
+      <div class="actions full"><button class="btn secondary" type="reset">Limpiar</button><button class="btn primary" type="submit"><i class="fa-solid fa-floppy-disk"></i> Registrar solicitud</button></div>
+      <div id="requestMessage" class="message full"></div>
+    </form>
+  </article></section>
+
+  <section id="requestList" class="panel"><article class="card"><header class="card-head"><div><h2>Requerimientos</h2><p>Solicitudes registradas con detalle desplegable.</p></div></header><div id="requirements"></div></article></section>
+
+  <section id="requestReview" class="panel"><article class="card">
+    <header class="card-head"><div><h2>Revisión de solicitudes</h2><p>Listado consolidado de solicitudes realizadas.</p></div><button id="exportRequests" class="btn excel"><i class="fa-solid fa-file-excel"></i> Descargar Excel</button></header>
+    <div class="table-wrap"><table><thead><tr><th>Número requerimiento</th><th>Fecha</th><th>Actividad</th><th>Subactividad</th><th>Estado</th><th>Total valor</th></tr></thead><tbody id="requestRows"></tbody></table></div>
+    <p id="requestEmpty" class="empty">Aún no existen solicitudes registradas.</p>
+  </article></section>
+</section>
+
+<section id="supplierView" class="role">
+  <nav class="tabs">
+    <button class="tab active" data-target="supplierRegister">Registrar</button>
+    <button class="tab" data-target="supplierQuote">Cotizar</button>
+    <button class="tab" data-target="supplierReview">Revisión</button>
+  </nav>
+
+  <section id="supplierRegister" class="panel active"><article class="card">
+    <header class="card-head"><div><h2>Registro de proveedor</h2><p>n8n leerá y validará los certificados PDF.</p></div></header>
+    <form id="supplierForm" class="grid">
+      <div class="upload"><i class="fa-regular fa-file-pdf"></i><div><label>Certificado de RUC</label><p>Razón social, RUC, domicilio, contactos y actividades económicas.</p><input id="rucPdf" type="file" accept="application/pdf,.pdf" required></div></div>
+      <div class="upload"><i class="fa-solid fa-building-columns"></i><div><label>Certificado bancario</label><p>Banco, cliente, RUC, tipo y número de cuenta.</p><input id="bankPdf" type="file" accept="application/pdf,.pdf" required></div></div>
+      <div class="field"><label>Forma de pago</label><select id="payment" required><option value="">Seleccione</option><option>CRÉDITO 15 DÍAS</option><option>CRÉDITO 30 DÍAS</option><option>CRÉDITO 60 DÍAS</option></select></div>
+      <div class="field full">
+  <label>Productos a ofertar</label>
+  <div id="offerPicker" class="multi-search-picker"
+       data-placeholder="Buscar en la lista de trabajos..."></div>
+  <input id="offerValues" type="hidden" required>
+  <small>Puede buscar y agregar varios trabajos. Solo se muestra la columna Lista de trabajos.</small>
+</div>
+      <div class="actions full"><button class="btn secondary" type="reset">Limpiar</button><button class="btn primary" type="submit"><i class="fa-solid fa-user-check"></i> Finalizar registro</button></div>
+      <div id="supplierMessage" class="message full"></div>
+    </form>
+  </article></section>
+
+  <section id="supplierQuote" class="panel"><article class="card">
+    <header class="card-head"><div><h2>Registrar cotización</h2><p>Complete todos los datos e ítems.</p></div></header>
+    <form id="quoteForm" class="grid">
+      <div class="field"><label>Fecha cotización</label><input id="quoteDate" type="date" readonly required></div>
+      <div class="field"><label>No. cotización</label><input id="quoteNumber" readonly required></div>
+      <div class="field"><label>Proveedor</label><input id="quoteSupplier" readonly required></div>
+      <div class="field"><label>Forma de pago</label><input id="quotePayment" readonly required></div>
+      <div class="field">
+  <label>Centro de costos</label>
+  <div id="quoteCenterPicker" class="search-picker"
+       data-placeholder="Buscar parqueadero..."></div>
+  <input id="quoteCenterValue" type="hidden" required>
+</div>
+      <div class="field">
+  <label>Lista de trabajos</label>
+  <div id="quoteWorksPicker" class="multi-search-picker"
+       data-placeholder="Buscar trabajos registrados..."></div>
+  <input id="quoteWorksValues" type="hidden" required>
+  <small>Solo aparecen los trabajos registrados por el proveedor.</small>
+</div>
+      <div class="full table-wrap"><table class="quote-table"><thead><tr><th>Cantidad</th><th>Detalle producto o servicio</th><th>Precio unitario</th><th>IVA</th><th>Precio final</th><th></th></tr></thead><tbody id="quoteItems"></tbody><tfoot><tr><td colspan="4">SUBTOTAL 0%</td><td id="subtotal0">$ 0.00</td><td></td></tr><tr><td colspan="4">SUBTOTAL 15%</td><td id="subtotal15">$ 0.00</td><td></td></tr><tr><td colspan="4">IVA 15%</td><td id="iva15">$ 0.00</td><td></td></tr><tr class="total"><td colspan="4">TOTAL</td><td id="grandTotal">$ 0.00</td><td></td></tr></tfoot></table></div>
+      <div class="full"><button id="addItem" class="btn soft" type="button"><i class="fa-solid fa-plus"></i> Añadir ítem</button></div>
+      <div class="field"><label>Fecha de entrega</label><input id="deliveryDate" type="date" required></div>
+      <div class="upload"><i class="fa-regular fa-images"></i><div><label>Fotografías de referencia</label><p>Opcional. JPG o JPEG.</p><input id="photos" type="file" accept="image/jpeg,.jpg,.jpeg" multiple></div></div>
+      <div class="actions full"><button class="btn secondary" type="reset">Limpiar</button><button class="btn primary" type="submit"><i class="fa-solid fa-file-circle-check"></i> Finalizar cotización</button></div>
+      <div id="quoteMessage" class="message full"></div>
+    </form>
+  </article></section>
+
+  <section id="supplierReview" class="panel"><article class="card">
+    <header class="card-head"><div><h2>Revisión de cotizaciones</h2><p>Listado consolidado de cotizaciones realizadas.</p></div><button id="exportQuotes" class="btn excel"><i class="fa-solid fa-file-excel"></i> Descargar Excel</button></header>
+    <div class="table-wrap"><table><thead><tr><th>Número cotización</th><th>Fecha</th><th>Centro de costos</th><th>Trabajo</th><th>Estado actual</th><th>Total valor</th></tr></thead><tbody id="quoteRows"></tbody></table></div>
+    <p id="quoteEmpty" class="empty">Aún no existen cotizaciones registradas.</p>
+  </article></section>
+</section>
+
+</div></main></div>
+<script type="module" src="js/app.js"></script>
+</body></html>

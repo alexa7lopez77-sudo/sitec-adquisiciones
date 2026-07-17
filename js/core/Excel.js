@@ -1,0 +1,1 @@
+export class Excel{static download(rows,file,sheet){const ws=XLSX.utils.json_to_sheet(rows),wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,sheet);XLSX.writeFile(wb,file)}}

@@ -1,0 +1,1 @@
+export class Quotation{constructor(n,d){Object.assign(this,d);this.number=n;this.code=`COTIZACION No. ${String(n).padStart(5,"0")}`;this.status="COTIZADA";this.createdAt=new Date().toISOString()}}

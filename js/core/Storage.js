@@ -1,0 +1,1 @@
+export class Storage{static list(k){return JSON.parse(localStorage.getItem(k)||"[]")}static saveList(k,v){localStorage.setItem(k,JSON.stringify(v))}static object(k){return JSON.parse(localStorage.getItem(k)||"null")}static saveObject(k,v){localStorage.setItem(k,JSON.stringify(v))}}

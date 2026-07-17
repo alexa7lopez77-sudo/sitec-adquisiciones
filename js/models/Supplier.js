@@ -1,0 +1,1 @@
+export class Supplier{constructor(data,payment,works){Object.assign(this,data);this.paymentMethod=payment;this.offeredWorks=works;this.registeredAt=new Date().toISOString()}}

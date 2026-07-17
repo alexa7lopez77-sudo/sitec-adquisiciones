@@ -1,0 +1,1 @@
+export class Request{constructor(n,d){Object.assign(this,d);this.number=n;this.code=`REQ-${String(n).padStart(5,"0")}`;this.status="ENVIADA PARA COTIZACION";this.totalValue=0}}
