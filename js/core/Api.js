@@ -1,1 +1,22 @@
-export class Api{async json(url,data){if(!url)return null;const r=await fetch(url,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(data)});if(!r.ok)throw Error(`HTTP ${r.status}`);return(r.headers.get("content-type")||"").includes("json")?r.json():r.text()}async form(url,data){if(!url)return null;const r=await fetch(url,{method:"POST",body:data});if(!r.ok)throw Error(`HTTP ${r.status}`);return(r.headers.get("content-type")||"").includes("json")?r.json():r.text()}}
+export class Api {
+  async json(url, data) {
+    if (!url) return null;
+    const r = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    });
+    if (!r.ok) throw Error(`HTTP ${r.status}`);
+    return (r.headers.get("content-type") || "").includes("json")
+      ? r.json()
+      : r.text();
+  }
+  async form(url, data) {
+    if (!url) return null;
+    const r = await fetch(url, { method: "POST", body: data });
+    if (!r.ok) throw Error(`HTTP ${r.status}`);
+    return (r.headers.get("content-type") || "").includes("json")
+      ? r.json()
+      : r.text();
+  }
+}

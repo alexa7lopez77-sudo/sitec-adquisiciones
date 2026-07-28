@@ -1,1 +1,43 @@
-import{CONFIG,KEYS}from"../config.js";import{Storage}from"../core/Storage.js";import{Supplier}from"../models/Supplier.js";export class SupplierService{constructor(api,url){this.api=api;this.url=url}current(){return Storage.object(KEYS.supplier)}async register(ruc,bank,payment,works){let v;if(CONFIG.demoMode&&!this.url)v={valid:true,rucCertificateValid:true,bankCertificateValid:true,provider:{businessName:"PROVEEDOR VALIDADO - DEMO",ruc:"0000000000000",bank:"BANCO VALIDADO"}};else{const f=new FormData();f.append("paymentMethod",payment);f.append("offeredWorks",JSON.stringify(works));f.append("rucCertificate",ruc);f.append("bankCertificate",bank);v=await this.api.form(this.url,f)}if(v.valid!==true||v.rucCertificateValid===false||v.bankCertificateValid===false)throw Error("INVALID");const s=new Supplier(v.provider,payment,works);Storage.saveObject(KEYS.supplier,s);return s}}
+import { CONFIG, KEYS } from "../config.js";
+import { Storage } from "../core/Storage.js";
+import { Supplier } from "../models/Supplier.js";
+export class SupplierService {
+  constructor(api, url) {
+    this.api = api;
+    this.url = url;
+  }
+  current() {
+    return Storage.object(KEYS.supplier);
+  }
+  async register(ruc, bank, payment, works) {
+    let v;
+    if (CONFIG.demoMode && !this.url)
+      v = {
+        valid: true,
+        rucCertificateValid: true,
+        bankCertificateValid: true,
+        provider: {
+          businessName: "PROVEEDOR VALIDADO - DEMO",
+          ruc: "0000000000000",
+          bank: "BANCO VALIDADO",
+        },
+      };
+    else {
+      const f = new FormData();
+      f.append("paymentMethod", payment);
+      f.append("offeredWorks", JSON.stringify(works));
+      f.append("rucCertificate", ruc);
+      f.append("bankCertificate", bank);
+      v = await this.api.form(this.url, f);
+    }
+    if (
+      v.valid !== true ||
+      v.rucCertificateValid === false ||
+      v.bankCertificateValid === false
+    )
+      throw Error("INVALID");
+    const s = new Supplier(v.provider, payment, works);
+    Storage.saveObject(KEYS.supplier, s);
+    return s;
+  }
+}
