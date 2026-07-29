@@ -2,7 +2,8 @@ export const CONFIG = {
   demoMode: true,
   currentUser: { name: "Procesos", email: "procesos@urba-park.com" },
   endpoints: {
-    supplier: "",
+    supplier:
+      "https://sitecdesarrollo-n8n.9hwbyc.easypanel.host/webhook/sitec-registro-proveedor",
     request:
       "https://sitecdesarrollo-n8n.9hwbyc.easypanel.host/webhook/sitec-solicitud-compra",
     quotation: "",
