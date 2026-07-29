@@ -18,59 +18,74 @@ export class SupplierView {
       root: document.getElementById("offerPicker"),
       items: this.catalogService.allWorks(),
       placeholder: "Buscar en la lista de trabajos...",
-      onChange: values => {
-        document.getElementById("offerValues").value =
-          values.length ? JSON.stringify(values) : "";
-      }
+      onChange: (values) => {
+        document.getElementById("offerValues").value = values.length
+          ? JSON.stringify(values)
+          : "";
+      },
     });
 
     this.quoteCenterPicker = new SearchableSelect({
       root: document.getElementById("quoteCenterPicker"),
       items: COST_CENTERS,
       placeholder: "Buscar parqueadero...",
-      onChange: value =>
-        document.getElementById("quoteCenterValue").value = value
+      onChange: (value) =>
+        (document.getElementById("quoteCenterValue").value = value),
     });
 
     this.quoteWorksPicker = new MultiSearchSelect({
       root: document.getElementById("quoteWorksPicker"),
       items: [],
       placeholder: "Buscar trabajos registrados...",
-      onChange: values => {
-        document.getElementById("quoteWorksValues").value =
-          values.length ? JSON.stringify(values) : "";
-      }
+      onChange: (values) => {
+        document.getElementById("quoteWorksValues").value = values.length
+          ? JSON.stringify(values)
+          : "";
+      },
     });
 
-    document.getElementById("supplierForm")
-      .addEventListener("submit", event => this.register(event));
+    document
+      .getElementById("supplierForm")
+      .addEventListener("submit", (event) => this.register(event));
 
-    document.getElementById("supplierForm")
-      .addEventListener("reset", () => {
-        setTimeout(() => this.offerPicker.clear(), 0);
-      });
+    document.getElementById("supplierForm").addEventListener("reset", () => {
+      setTimeout(() => {
+        this.offerPicker.clear();
 
-    document.getElementById("addItem")
+        const message = document.getElementById("supplierMessage");
+        if (message) {
+          message.textContent = "";
+          message.className = "";
+        }
+      }, 0);
+    });
+
+    document
+      .getElementById("addItem")
       .addEventListener("click", () => this.addRow());
 
-    document.getElementById("quoteItems")
-      .addEventListener("click", event => this.remove(event));
+    document
+      .getElementById("quoteItems")
+      .addEventListener("click", (event) => this.remove(event));
 
-    document.getElementById("quoteItems")
+    document
+      .getElementById("quoteItems")
       .addEventListener("input", () => this.calc());
 
-    document.getElementById("quoteItems")
+    document
+      .getElementById("quoteItems")
       .addEventListener("change", () => this.calc());
 
-    document.getElementById("quoteForm")
-      .addEventListener("submit", event => this.quote(event));
+    document
+      .getElementById("quoteForm")
+      .addEventListener("submit", (event) => this.quote(event));
 
-    document.getElementById("quoteForm")
-      .addEventListener("reset", () => {
-        setTimeout(() => this.resetQuoteForm(), 0);
-      });
+    document.getElementById("quoteForm").addEventListener("reset", () => {
+      setTimeout(() => this.resetQuoteForm(), 0);
+    });
 
-    document.getElementById("exportQuotes")
+    document
+      .getElementById("exportQuotes")
       .addEventListener("click", () => this.excel());
 
     window.addEventListener("sitec:view", () => {
@@ -86,13 +101,20 @@ export class SupplierView {
   async register(event) {
     event.preventDefault();
 
+    const message = document.getElementById("supplierMessage");
+
+    if (message) {
+      message.textContent = "";
+      message.className = "";
+    }
+
     const works = this.offerPicker.getValues();
 
     if (!works.length) {
       Utils.message(
         document.getElementById("supplierMessage"),
         "Seleccione al menos un producto o trabajo.",
-        "error"
+        "error",
       );
       return;
     }
@@ -105,7 +127,7 @@ export class SupplierView {
       Utils.message(
         document.getElementById("supplierMessage"),
         "Debe adjuntar los dos certificados y seleccionar la forma de pago.",
-        "error"
+        "error",
       );
       return;
     }
@@ -116,7 +138,7 @@ export class SupplierView {
       Utils.message(
         document.getElementById("supplierMessage"),
         "REGISTRO REALIZADO CORRECTAMENTE",
-        "success"
+        "success",
       );
 
       this.load();
@@ -126,7 +148,7 @@ export class SupplierView {
         error.message === "INVALID"
           ? "NO SE PUEDE REALIZAR EL REGISTRO PORQUE LOS CERTIFICADOS NO SON VALIDOS"
           : "No fue posible validar los certificados.",
-        "error"
+        "error",
       );
     }
   }
@@ -143,10 +165,7 @@ export class SupplierView {
     document.getElementById("quotePayment").value =
       supplier?.paymentMethod || "";
 
-    this.quoteWorksPicker.setItems(
-      supplier?.offeredWorks || [],
-      true
-    );
+    this.quoteWorksPicker.setItems(supplier?.offeredWorks || [], true);
   }
 
   resetQuoteForm() {
@@ -201,7 +220,7 @@ export class SupplierView {
     let subtotal0 = 0;
     let subtotal15 = 0;
 
-    document.querySelectorAll("#quoteItems tr").forEach(row => {
+    document.querySelectorAll("#quoteItems tr").forEach((row) => {
       const total =
         (Number(row.querySelector(".qty").value) || 0) *
         (Number(row.querySelector(".unit").value) || 0);
@@ -227,12 +246,12 @@ export class SupplierView {
   }
 
   items() {
-    return [...document.querySelectorAll("#quoteItems tr")].map(row => ({
+    return [...document.querySelectorAll("#quoteItems tr")].map((row) => ({
       quantity: Number(row.querySelector(".qty").value),
       description: row.querySelector(".desc").value.trim(),
       unitPrice: Number(row.querySelector(".unit").value),
       vat: Number(row.querySelector(".vat").value),
-      finalPrice: Number(row.querySelector(".line").value)
+      finalPrice: Number(row.querySelector(".line").value),
     }));
   }
 
@@ -248,7 +267,7 @@ export class SupplierView {
       Utils.message(
         document.getElementById("quoteMessage"),
         "Primero registre al proveedor.",
-        "error"
+        "error",
       );
       return;
     }
@@ -257,7 +276,7 @@ export class SupplierView {
       Utils.message(
         document.getElementById("quoteMessage"),
         "Complete centro de costos, trabajos y fecha de entrega.",
-        "error"
+        "error",
       );
       return;
     }
@@ -275,21 +294,20 @@ export class SupplierView {
       works,
       items: this.items(),
       ...this.calc(),
-      deliveryDate
+      deliveryDate,
     });
 
     try {
-      await this.quoteService.create(
-        quotation,
-        [...document.getElementById("photos").files]
-      );
+      await this.quoteService.create(quotation, [
+        ...document.getElementById("photos").files,
+      ]);
 
       this.requestService.link(quotation);
 
       Utils.message(
         document.getElementById("quoteMessage"),
         `${quotation.code} registrada correctamente.`,
-        "success"
+        "success",
       );
 
       this.load();
@@ -299,7 +317,7 @@ export class SupplierView {
       Utils.message(
         document.getElementById("quoteMessage"),
         "No fue posible registrar la cotización.",
-        "error"
+        "error",
       );
     }
   }
@@ -307,7 +325,9 @@ export class SupplierView {
   render() {
     const items = this.quoteService.list();
 
-    document.getElementById("quoteRows").innerHTML = items.map(item => `
+    document.getElementById("quoteRows").innerHTML = items
+      .map(
+        (item) => `
       <tr>
         <td>${item.code}</td>
         <td>${item.date}</td>
@@ -316,24 +336,27 @@ export class SupplierView {
         <td>${Utils.status(item.status)}</td>
         <td>${Utils.money(item.total)}</td>
       </tr>
-    `).join("");
+    `,
+      )
+      .join("");
 
-    document.getElementById("quoteEmpty").style.display =
-      items.length ? "none" : "block";
+    document.getElementById("quoteEmpty").style.display = items.length
+      ? "none"
+      : "block";
   }
 
   excel() {
     Excel.download(
-      this.quoteService.list().map(item => ({
+      this.quoteService.list().map((item) => ({
         "Número cotización": item.code,
-        "Fecha": item.date,
+        Fecha: item.date,
         "Centro de costos": item.costCenter,
-        "Trabajo": item.works.join(", "),
-        "Estado": item.status,
-        "Total valor": item.total
+        Trabajo: item.works.join(", "),
+        Estado: item.status,
+        "Total valor": item.total,
       })),
       "cotizaciones_adquisiciones.xlsx",
-      "Cotizaciones"
+      "Cotizaciones",
     );
   }
 }
