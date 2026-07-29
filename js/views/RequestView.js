@@ -53,10 +53,24 @@ export class RequestView {
 
     document.getElementById("centerValue").value = "";
     document.getElementById("workValue").value = "";
+
+    const message = document.getElementById("requestMessage");
+
+    if (message) {
+      message.innerHTML = "";
+      message.className = "";
+    }
   }
 
   async submit(event) {
     event.preventDefault();
+
+    const message = document.getElementById("requestMessage");
+
+    if (message) {
+      message.textContent = "";
+      message.className = "";
+    }
 
     const center = this.centerPicker.getValue();
     const selectedWork = this.workPicker.getValue();
