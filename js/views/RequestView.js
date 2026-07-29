@@ -16,29 +16,30 @@ export class RequestView {
       root: document.getElementById("centerPicker"),
       items: COST_CENTERS,
       placeholder: "Buscar parqueadero...",
-      onChange: value => {
+      onChange: (value) => {
         document.getElementById("centerValue").value = value;
-      }
+      },
     });
 
     this.workPicker = new SearchableSelect({
       root: document.getElementById("workPicker"),
       items: this.catalog.allWorks(),
       placeholder: "Buscar en la lista de trabajos...",
-      onChange: value => {
+      onChange: (value) => {
         document.getElementById("workValue").value = value;
-      }
+      },
     });
 
-    document.getElementById("requestForm")
-      .addEventListener("submit", event => this.submit(event));
+    document
+      .getElementById("requestForm")
+      .addEventListener("submit", (event) => this.submit(event));
 
-    document.getElementById("requestForm")
-      .addEventListener("reset", () => {
-        setTimeout(() => this.resetForm(), 0);
-      });
+    document.getElementById("requestForm").addEventListener("reset", () => {
+      setTimeout(() => this.resetForm(), 0);
+    });
 
-    document.getElementById("exportRequests")
+    document
+      .getElementById("exportRequests")
       .addEventListener("click", () => this.excel());
 
     window.addEventListener("sitec:view", () => this.render());
@@ -64,7 +65,7 @@ export class RequestView {
       Utils.message(
         document.getElementById("requestMessage"),
         "Debe seleccionar el centro de costo y el trabajo.",
-        "error"
+        "error",
       );
       return;
     }
@@ -84,7 +85,7 @@ export class RequestView {
       subactivity: workMetadata.subactivity,
       work: workMetadata.work,
       observations: document.getElementById("notes").value.trim(),
-      createdBy: CONFIG.currentUser.name
+      createdBy: CONFIG.currentUser.name,
     });
 
     try {
@@ -93,16 +94,17 @@ export class RequestView {
       Utils.message(
         document.getElementById("requestMessage"),
         `Solicitud ${request.code} registrada correctamente.`,
-        "success"
+        "success",
       );
 
       event.currentTarget.reset();
       this.render();
     } catch {
+      console.error("Error al registrar la solicitud:", error);
       Utils.message(
         document.getElementById("requestMessage"),
         "No fue posible registrar la solicitud.",
-        "error"
+        "error",
       );
     }
   }
@@ -112,7 +114,9 @@ export class RequestView {
     const requirements = document.getElementById("requirements");
 
     requirements.innerHTML = items.length
-      ? items.map(item => `
+      ? items
+          .map(
+            (item) => `
           <article class="requirement">
             <button type="button">
               <span>
@@ -130,18 +134,20 @@ export class RequestView {
               </p>
             </div>
           </article>
-        `).join("")
+        `,
+          )
+          .join("")
       : '<p class="empty">Aún no existen requerimientos.</p>';
 
-    requirements.querySelectorAll(".requirement > button")
-      .forEach(button => {
-        button.addEventListener("click", () => {
-          button.parentElement.classList.toggle("open");
-        });
+    requirements.querySelectorAll(".requirement > button").forEach((button) => {
+      button.addEventListener("click", () => {
+        button.parentElement.classList.toggle("open");
       });
+    });
 
-    document.getElementById("requestRows").innerHTML =
-      items.map(item => `
+    document.getElementById("requestRows").innerHTML = items
+      .map(
+        (item) => `
         <tr>
           <td>${item.code}</td>
           <td>${item.date}</td>
@@ -150,26 +156,29 @@ export class RequestView {
           <td>${Utils.status(item.status)}</td>
           <td>${Utils.money(item.totalValue)}</td>
         </tr>
-      `).join("");
+      `,
+      )
+      .join("");
 
-    document.getElementById("requestEmpty").style.display =
-      items.length ? "none" : "block";
+    document.getElementById("requestEmpty").style.display = items.length
+      ? "none"
+      : "block";
   }
 
   excel() {
     Excel.download(
-      this.service.list().map(item => ({
+      this.service.list().map((item) => ({
         "Número requerimiento": item.code,
-        "Fecha": item.date,
+        Fecha: item.date,
         "Centro de costo": item.costCenter,
         "Actividad asignada": item.activity,
         "Subactividad asignada": item.subactivity,
-        "Trabajo": item.work,
-        "Estado": item.status,
-        "Total valor": item.totalValue
+        Trabajo: item.work,
+        Estado: item.status,
+        "Total valor": item.totalValue,
       })),
       "solicitudes_adquisiciones.xlsx",
-      "Solicitudes"
+      "Solicitudes",
     );
   }
 }
