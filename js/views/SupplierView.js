@@ -25,6 +25,15 @@ export class SupplierView {
       },
     });
 
+    document.getElementById("orderRows").addEventListener("click", (event) => {
+      const button = event.target.closest(".view-order");
+
+      if (!button) return;
+
+      const code = decodeURIComponent(button.dataset.code || "");
+      this.viewPurchaseOrder(code);
+    });
+
     document.getElementById("quoteRows").addEventListener("click", (event) => {
       const button = event.target.closest(".approve-quote, .reject-quote");
 
@@ -384,6 +393,322 @@ export class SupplierView {
     }
   }
 
+  viewPurchaseOrder(code) {
+    const quotation = this.quoteService
+      .list()
+      .find((item) => item.purchaseOrder?.code === code);
+
+    const order = quotation?.purchaseOrder;
+
+    if (!order) {
+      alert("No fue posible encontrar la orden de compra seleccionada.");
+      return;
+    }
+
+    const escapeHtml = (value) =>
+      String(value ?? "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+
+    const itemRows = (order.items || [])
+      .map((item) => {
+        const quantity = Number(item.quantity || 0);
+        const unitPrice = Number(item.unitPrice || 0);
+        const finalPrice = Number(item.finalPrice || quantity * unitPrice);
+        const vat = Number(item.vat || 0);
+
+        return `
+        <tr>
+          <td>${escapeHtml(quantity)}</td>
+          <td>${escapeHtml(item.description)}</td>
+          <td>${escapeHtml(Utils.money(unitPrice))}</td>
+          <td>${escapeHtml(`${vat}%`)}</td>
+          <td>${escapeHtml(Utils.money(finalPrice))}</td>
+        </tr>
+      `;
+      })
+      .join("");
+
+    const orderWindow = window.open("", "_blank", "width=1100,height=800");
+
+    if (!orderWindow) {
+      alert(
+        "El navegador bloqueó la ventana. Habilite las ventanas emergentes para visualizar la orden.",
+      );
+      return;
+    }
+
+    orderWindow.document.write(`
+    <!DOCTYPE html>
+    <html lang="es">
+      <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+        <title>${escapeHtml(order.code)}</title>
+
+        <style>
+          * {
+            box-sizing: border-box;
+          }
+
+          body {
+            margin: 0;
+            padding: 35px;
+            font-family: Arial, sans-serif;
+            color: #243b5a;
+            background: #f4f7fb;
+          }
+
+          .document {
+            max-width: 1000px;
+            margin: auto;
+            padding: 40px;
+            background: white;
+            border-radius: 14px;
+            box-shadow: 0 10px 30px rgba(30, 61, 98, 0.12);
+          }
+
+          .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            border-bottom: 3px solid #2563eb;
+            padding-bottom: 20px;
+            margin-bottom: 25px;
+          }
+
+          .brand {
+            font-size: 34px;
+            font-weight: bold;
+            color: #1674b8;
+          }
+
+          h1 {
+            margin: 0 0 8px;
+            font-size: 27px;
+            text-align: right;
+          }
+
+          .status {
+            display: inline-block;
+            padding: 8px 15px;
+            border-radius: 20px;
+            color: #08775b;
+            background: #dff7ed;
+            font-weight: bold;
+          }
+
+          .information {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px 30px;
+            margin-bottom: 28px;
+          }
+
+          .information div {
+            padding: 12px;
+            background: #f6f9fd;
+            border-radius: 8px;
+          }
+
+          .information strong {
+            display: block;
+            margin-bottom: 5px;
+            color: #1c4f83;
+          }
+
+          table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+          }
+
+          th,
+          td {
+            padding: 12px;
+            border: 1px solid #dbe4ef;
+            text-align: left;
+          }
+
+          th {
+            background: #edf4fd;
+            color: #24486d;
+          }
+
+          .totals {
+            width: 380px;
+            margin: 25px 0 0 auto;
+          }
+
+          .totals div {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 12px;
+            border-bottom: 1px solid #dbe4ef;
+          }
+
+          .totals .total {
+            font-size: 20px;
+            font-weight: bold;
+            color: #155ed1;
+            background: #e9f1ff;
+          }
+
+          .actions {
+            margin-top: 30px;
+            text-align: right;
+          }
+
+          button {
+            padding: 12px 22px;
+            border: 0;
+            border-radius: 8px;
+            background: #2563eb;
+            color: white;
+            font-size: 15px;
+            font-weight: bold;
+            cursor: pointer;
+          }
+
+          @media print {
+            body {
+              padding: 0;
+              background: white;
+            }
+
+            .document {
+              box-shadow: none;
+              border-radius: 0;
+            }
+
+            .actions {
+              display: none;
+            }
+          }
+        </style>
+      </head>
+
+      <body>
+        <main class="document">
+          <header class="header">
+            <div>
+              <div class="brand">SITEC</div>
+              <p>UrbaPark – Módulo de Adquisiciones</p>
+            </div>
+
+            <div>
+              <h1>Orden de compra</h1>
+              <strong>${escapeHtml(order.code)}</strong>
+              <br /><br />
+              <span class="status">${escapeHtml(
+                order.status || "GENERADA",
+              )}</span>
+            </div>
+          </header>
+
+          <section class="information">
+            <div>
+              <strong>Cotización relacionada</strong>
+              ${escapeHtml(order.quotationCode)}
+            </div>
+
+            <div>
+              <strong>Fecha de emisión</strong>
+              ${escapeHtml(order.date)}
+            </div>
+
+            <div>
+              <strong>Proveedor</strong>
+              ${escapeHtml(order.supplier)}
+            </div>
+
+            <div>
+              <strong>Forma de pago</strong>
+              ${escapeHtml(order.paymentMethod)}
+            </div>
+
+            <div>
+              <strong>Centro de costos</strong>
+              ${escapeHtml(order.costCenter)}
+            </div>
+
+            <div>
+              <strong>Fecha de entrega</strong>
+              ${escapeHtml(order.deliveryDate || "No especificada")}
+            </div>
+
+            <div>
+              <strong>Trabajos</strong>
+              ${escapeHtml((order.works || []).join(", "))}
+            </div>
+          </section>
+
+          <h2>Detalle de la orden</h2>
+
+          <table>
+            <thead>
+              <tr>
+                <th>Cantidad</th>
+                <th>Descripción</th>
+                <th>Precio unitario</th>
+                <th>IVA</th>
+                <th>Precio final</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              ${
+                itemRows ||
+                `
+                  <tr>
+                    <td colspan="5">
+                      No existen ítems registrados en esta orden.
+                    </td>
+                  </tr>
+                `
+              }
+            </tbody>
+          </table>
+
+          <section class="totals">
+            <div>
+              <span>Subtotal 0%</span>
+              <strong>${escapeHtml(Utils.money(order.subtotal0 || 0))}</strong>
+            </div>
+
+            <div>
+              <span>Subtotal 15%</span>
+              <strong>${escapeHtml(Utils.money(order.subtotal15 || 0))}</strong>
+            </div>
+
+            <div>
+              <span>IVA 15%</span>
+              <strong>${escapeHtml(Utils.money(order.iva15 || 0))}</strong>
+            </div>
+
+            <div class="total">
+              <span>Total</span>
+              <strong>${escapeHtml(Utils.money(order.total || 0))}</strong>
+            </div>
+          </section>
+
+          <div class="actions">
+            <button type="button" onclick="window.print()">
+              Imprimir o guardar como PDF
+            </button>
+          </div>
+        </main>
+      </body>
+    </html>
+  `);
+
+    orderWindow.document.close();
+  }
+
   render() {
     const items = this.quoteService.list();
 
@@ -447,6 +772,16 @@ export class SupplierView {
         <td>${(order.works || []).join(", ")}</td>
         <td>${Utils.money(order.total || 0)}</td>
         <td>${Utils.status(order.status || "GENERADA")}</td>
+        <td>
+          <button
+            type="button"
+            class="btn view-order"
+            data-code="${encodeURIComponent(order.code || "")}"
+          >
+            <i class="fa-solid fa-eye"></i>
+            Ver orden
+          </button>
+        </td>
       </tr>
     `,
       )
