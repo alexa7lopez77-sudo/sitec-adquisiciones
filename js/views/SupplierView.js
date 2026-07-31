@@ -25,6 +25,18 @@ export class SupplierView {
       },
     });
 
+    document.getElementById("quoteRows").addEventListener("click", (event) => {
+      const button = event.target.closest(".approve-quote, .reject-quote");
+
+      if (!button) return;
+
+      const decision = button.classList.contains("approve-quote")
+        ? "APROBAR"
+        : "RECHAZAR";
+
+      this.reviewQuotation(button.dataset.code, decision);
+    });
+
     this.quoteCenterPicker = new SearchableSelect({
       root: document.getElementById("quoteCenterPicker"),
       items: COST_CENTERS,
@@ -322,6 +334,46 @@ export class SupplierView {
     }
   }
 
+  async reviewQuotation(code, decision) {
+    const approve = decision === "APROBAR";
+
+    const confirmed = window.confirm(
+      approve
+        ? `¿Desea aprobar ${code} y generar la orden de compra?`
+        : `¿Desea rechazar ${code}?`,
+    );
+
+    if (!confirmed) return;
+
+    const message = document.getElementById("quoteReviewMessage");
+
+    try {
+      const quotation = await this.quoteService.review(code, decision);
+
+      const orderCode = quotation.purchaseOrder?.code;
+
+      Utils.message(
+        message,
+        approve
+          ? orderCode
+            ? `${code} aprobada. Orden ${orderCode} generada correctamente.`
+            : `${code} aprobada correctamente.`
+          : `${code} rechazada correctamente.`,
+        "success",
+      );
+
+      this.render();
+    } catch (error) {
+      console.error("Error al procesar la revisión de la cotización:", error);
+
+      Utils.message(
+        message,
+        "No fue posible procesar la revisión de la cotización.",
+        "error",
+      );
+    }
+  }
+
   render() {
     const items = this.quoteService.list();
 
@@ -335,6 +387,31 @@ export class SupplierView {
         <td>${item.works.join(", ")}</td>
         <td>${Utils.status(item.status)}</td>
         <td>${Utils.money(item.total)}</td>
+        <td class="quote-actions">
+          ${
+            item.status === "COTIZADA"
+              ? `
+                <button
+                type="button"
+                class="btn approve-quote"
+                data-code="${item.code}"
+              >
+                <i class="fa-solid fa-check"></i>
+                Aprobar
+              </button>
+
+              <button
+              type="button"
+              class="btn reject-quote"
+              data-code="${item.code}"
+              >
+                <i class="fa-solid fa-xmark"></i>
+                Rechazar
+              </button>
+            `
+              : `<span>${Utils.status(item.status)}</span>`
+          }
+        </td>
       </tr>
     `,
       )

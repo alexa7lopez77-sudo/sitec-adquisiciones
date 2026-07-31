@@ -8,6 +8,8 @@ export const CONFIG = {
       "https://sitecdesarrollo-n8n.9hwbyc.easypanel.host/webhook/sitec-solicitud-compra",
     quotation:
       "https://sitecdesarrollo-n8n.9hwbyc.easypanel.host/webhook/registro-cotizacion",
+    quotationReview:
+      "https://sitecdesarrollo-n8n.9hwbyc.easypanel.host/webhook/revision-cotizacion",
   },
 };
 export const KEYS = {
