@@ -183,8 +183,18 @@ export class SupplierView {
   resetQuoteForm() {
     this.quoteCenterPicker.clear(false);
     this.quoteWorksPicker.clear();
+
     document.getElementById("quoteCenterValue").value = "";
     document.getElementById("quoteWorksValues").value = "";
+
+    // Limpiar el mensaje de éxito o error de la cotización
+    const message = document.getElementById("quoteMessage");
+
+    if (message) {
+      message.textContent = "";
+      message.className = "";
+    }
+
     this.load();
     this.calc();
   }
