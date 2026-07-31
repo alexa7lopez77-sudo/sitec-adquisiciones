@@ -430,6 +430,31 @@ export class SupplierView {
     document.getElementById("quoteEmpty").style.display = items.length
       ? "none"
       : "block";
+
+    const orders = items
+      .filter((item) => item.purchaseOrder)
+      .map((item) => item.purchaseOrder);
+
+    document.getElementById("orderRows").innerHTML = orders
+      .map(
+        (order) => `
+      <tr>
+        <td>${order.code || ""}</td>
+        <td>${order.quotationCode || ""}</td>
+        <td>${order.date || ""}</td>
+        <td>${order.supplier || ""}</td>
+        <td>${order.costCenter || ""}</td>
+        <td>${(order.works || []).join(", ")}</td>
+        <td>${Utils.money(order.total || 0)}</td>
+        <td>${Utils.status(order.status || "GENERADA")}</td>
+      </tr>
+    `,
+      )
+      .join("");
+
+    document.getElementById("orderEmpty").style.display = orders.length
+      ? "none"
+      : "block";
   }
 
   excel() {

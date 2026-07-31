@@ -176,6 +176,9 @@
               </button>
               <button class="tab" data-target="supplierQuote">Cotizar</button>
               <button class="tab" data-target="supplierReview">Revisión</button>
+              <button class="tab" data-target="supplierOrders">
+                Órdenes de compra
+              </button>
             </nav>
 
             <section id="supplierRegister" class="panel active">
@@ -246,6 +249,43 @@
                   </div>
                   <div id="supplierMessage" class="message full"></div>
                 </form>
+              </article>
+            </section>
+
+            <section id="supplierOrders" class="panel">
+              <article class="card">
+                <header class="card-head">
+                  <div>
+                    <h2>Órdenes de compra</h2>
+                    <p>
+                      Listado de órdenes generadas a partir de cotizaciones
+                      aprobadas.
+                    </p>
+                  </div>
+                </header>
+
+                <div class="table-wrap">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>Número de orden</th>
+                        <th>Número de cotización</th>
+                        <th>Fecha</th>
+                        <th>Proveedor</th>
+                        <th>Centro de costos</th>
+                        <th>Trabajo</th>
+                        <th>Total</th>
+                        <th>Estado</th>
+                      </tr>
+                    </thead>
+
+                    <tbody id="orderRows"></tbody>
+                  </table>
+                </div>
+
+                <p id="orderEmpty" class="empty">
+                  Aún no existen órdenes de compra generadas.
+                </p>
               </article>
             </section>
 
